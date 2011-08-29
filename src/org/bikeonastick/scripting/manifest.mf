@@ -1,0 +1,6 @@
+Bundle-Version: 1.0
+Bundle-Name: rubyrunner
+Bundle-Vendor: bikeonastick
+Main-Class: org.bikeonastick.scripting.RubyRunner
+Class-Path: ../thirdParty/jruby-complete.jar
+

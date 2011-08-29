@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+
+<!-- Copyright 2011 robert tomb  -->
+
+<project name="samplejrubyembed" default="build">
+    <description>
+   	 	Ant build script to build a simple jruby runtime and script into an executable jar file.
+    </description>
+	
+	<property name="source.dir" location="src"/>
+	<property name="scripts.dir" location="scripts"/>
+	<property name="thirdparty.dir" location="thirdParty"/>
+    <property name="build.dir" location="build"/>
+	<property name="build.res.dir" location="${build.dir}/resources"/>
+	<property name="build.class.dir" location="${build.dir}/classes"/>
+	<property name="build.main.dir" location="${build.res.dir}/main"/>
+	<property name="build.scripts.dir" location="${build.res.dir}/scripts"/>
+	<property name="build.thirdparty.dir" location="${build.res.dir}/lib"/>
+	<property name="jar.name" location="embedjruby.jar"/>
+
+
+	<property name="dist.dir" location="dist"/>
+	<property name="doc.dir" location="docs"/>
+ 
+    <path id="compile.classpath">
+        <fileset dir="thirdParty">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>   
+
+    
+    
+    <!-- ================================= 
+          target: default              
+         ================================= -->
+    <target name="build" depends="clean,init,compile,jar" description="Builds the tool"/>
+    <target name="clean-build" depends="clean,build" description="Builds the tool"/>
+        
+
+	<target name="init">
+		<mkdir dir="${build.class.dir}"/>
+		<mkdir dir="${build.res.dir}"/>
+		<mkdir dir="${build.scripts.dir}"/>
+		<mkdir dir="${build.main.dir}"/>
+		<mkdir dir="${build.thirdparty.dir}"/>
+        <mkdir dir="${dist.dir}"/>      
+		<copy todir="${build.res.dir}" >
+		    <fileset dir="${scripts.dir}"/>
+		</copy>
+		<copy todir="${build.thirdparty.dir}" >
+			<fileset dir="${thirdparty.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
+		
+	</target>
+	<target name="good-jruby">
+		<echo> put jruby with good constantine.jar into place </echo>
+		<delete >
+			<fileset dir="thirdParty" 
+				 includes="jruby-complete*.jar" />
+		</delete>
+		<copy file="thirdParty/jruby-complete-164src.fix" tofile="thirdParty/jruby-complete-164src.jar"/>
+	</target>
+
+
+	<target name="bad-jruby">
+		<echo> put jruby with bad constantine.jar into place </echo>
+		<delete >
+			<fileset dir="thirdParty" 
+				 includes="jruby-complete*.jar" />
+		</delete>
+		<copy file="thirdParty/jruby-complete-1.6.4.bad" tofile="thirdParty/jruby-complete-1.6.4.jar"/>
+	</target>
+	
+	<target name="clean" description="Cleans out all build artifacts">
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+	</target>
+ 
+    <target name="compile" depends="init">
+        <javac srcdir="${source.dir}" debug="true" destdir="${build.class.dir}">
+            <classpath refid="compile.classpath"/>   
+        </javac>
+     
+    </target>   
+ 
+    <target name="jar" depends="compile">
+	    <jar jarfile="${build.main.dir}/embedjruby.jar" manifest="${source.dir}/org/bikeonastick/scripting/manifest.mf">
+            <fileset dir="${build.class.dir}"/>
+            <fileset dir="${build.res.dir}" />
+        </jar>
+    	
+    	<unjar src="${build.thirdparty.dir}/one-jar-boot-0.95.jar" dest="${build.res.dir}" />
+    	<delete file="${build.thirdparty.dir}/one-jar-boot-0.95.jar" failonerror="No"/>
+    	
+	<jar jarfile="${dist.dir}/embedjruby.jar" manifest="${build.res.dir}/boot-manifest.mf">
+            <fileset dir="${build.res.dir}" />
+        </jar>
+    </target>
+</project>
+
