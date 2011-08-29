@@ -1,0 +1,49 @@
+This project exists to test fixes to com.kenai.constantine.Platform and how it performs when executed in a jar file. I have some fixes built from local code embedded in thirdParty/jruby-complete-164src.fix and the standard jruby 1.6.4 in jruby-complete-1.6.4.bad.
+
+The ant targets good-jruby or bad-jruby put good or bad jar files into place for build. Pair the good or bad target with the build target to buid the embedjruby.jar of your liking, e.g., 
+
+ant good-jruby build
+
+Run the built code,
+
+java -jar dist/embedjruby.jar lala
+
+When you run it with the good code, you'll see:
+hello, lala
+yo, lala
+LOL, ur 2 funny, lala
+huzzah! lala, knave...
+
+however, when you run it with the bad code you'll see a sweet stack trace:
+
+Exception in thread "main" java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at com.simontuffs.onejar.Boot.run(Boot.java:247)
+	at com.simontuffs.onejar.Boot.main(Boot.java:105)
+Caused by: java.lang.NullPointerException
+	at com.kenai.constantine.Platform.getPackageName(Platform.java:39)
+	at com.kenai.constantine.ConstantSet.getEnumClass(ConstantSet.java:84)
+	at com.kenai.constantine.ConstantSet.getConstantSet(ConstantSet.java:60)
+	at com.kenai.constantine.platform.ConstantResolver.getConstants(ConstantResolver.java:181)
+	at com.kenai.constantine.platform.ConstantResolver.getConstant(ConstantResolver.java:102)
+	at com.kenai.constantine.platform.ConstantResolver.intValue(ConstantResolver.java:146)
+	at com.kenai.constantine.platform.OpenFlags.value(OpenFlags.java:28)
+	at org.jruby.RubyFile.createFileClass(RubyFile.java:265)
+	at org.jruby.Ruby.initCore(Ruby.java:1269)
+	at org.jruby.Ruby.bootstrap(Ruby.java:1099)
+	at org.jruby.Ruby.init(Ruby.java:1071)
+	at org.jruby.Ruby.newInstance(Ruby.java:186)
+	at org.jruby.embed.internal.SingletonLocalContextProvider.getRuntime(SingletonLocalContextProvider.java:95)
+	at org.jruby.embed.internal.EmbedRubyRuntimeAdapterImpl.runParser(EmbedRubyRuntimeAdapterImpl.java:166)
+	at org.jruby.embed.internal.EmbedRubyRuntimeAdapterImpl.parse(EmbedRubyRuntimeAdapterImpl.java:153)
+	at org.jruby.embed.ScriptingContainer.parse(ScriptingContainer.java:1211)
+	at org.bikeonastick.scripting.RubyRunner.rubyEval(RubyRunner.java:82)
+	at org.bikeonastick.scripting.RubyRunner.main(RubyRunner.java:37)
+	... 6 more
+
+Have fun with this and, happy hacking!
+
+--rt
